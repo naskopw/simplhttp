@@ -66,11 +66,10 @@ func NewServer(config Config) *Server {
 }
 
 func (s *Server) setupMiddleware() {
-	// Request logging using slog
 	s.echo.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus: true,
-		LogURI:    true,
-		LogMethod: true,
+		LogStatus:   true,
+		LogURI:      true,
+		LogMethod:   true,
 		HandleError: true,
 		LogValuesFunc: func(c *echo.Context, v middleware.RequestLoggerValues) error {
 			slog.Info("request",
@@ -84,12 +83,10 @@ func (s *Server) setupMiddleware() {
 
 	s.echo.Use(middleware.Recover())
 
-	// Basic Auth if configured
 	if s.config.Auth != "" {
 		parts := strings.SplitN(s.config.Auth, ":", 2)
 		if len(parts) == 2 {
 			s.echo.Use(middleware.BasicAuth(func(c *echo.Context, username, password string) (bool, error) {
-				// Use constant-time comparison to prevent timing attacks
 				userMatch := subtle.ConstantTimeCompare([]byte(username), []byte(parts[0])) == 1
 				passMatch := subtle.ConstantTimeCompare([]byte(password), []byte(parts[1])) == 1
 				return userMatch && passMatch, nil
@@ -101,7 +98,6 @@ func (s *Server) setupMiddleware() {
 }
 
 func (s *Server) setupRoutes() {
-	// API routes
 	api := s.echo.Group("/api")
 	api.GET("/health", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "OK")
@@ -111,16 +107,12 @@ func (s *Server) setupRoutes() {
 	api.GET("/zip/*", s.handleZipDownload)
 	api.POST("/upload/*", s.handleUpload)
 
-	// Static assets from embedded FS
 	subFS := echo.MustSubFS(ui.Assets, "dist")
 
-	// Serve UI assets
 	s.echo.StaticFS("/", subFS)
 
-	// SPA Fallback: for any route not found, serve index.html
 	s.echo.HTTPErrorHandler = func(c *echo.Context, err error) {
 		if err == echo.ErrNotFound {
-			// If not an API route, serve index.html
 			if !strings.HasPrefix(c.Request().URL.Path, "/api") {
 				indexFile, err := subFS.Open("index.html")
 				if err != nil {
@@ -176,7 +168,6 @@ func (s *Server) Start() error {
 	return nil
 }
 
-
 func (s *Server) handleConfig(c *echo.Context) error {
 	return c.JSON(http.StatusOK, ServerConfig{
 		MaxSizeBytes: s.config.MaxSizeBytes,
@@ -185,7 +176,6 @@ func (s *Server) handleConfig(c *echo.Context) error {
 }
 
 func (s *Server) resolvePath(p string) (string, error) {
-	// Clean the path to prevent traversal
 	cleanPath := filepath.Clean(p)
 	if strings.HasPrefix(cleanPath, "..") {
 		return "", fmt.Errorf("invalid path")
@@ -198,7 +188,6 @@ func (s *Server) resolvePath(p string) (string, error) {
 
 	fullPath := filepath.Join(absRoot, cleanPath)
 
-	// Ensure the fullPath is still within the absRoot
 	if !strings.HasPrefix(fullPath, absRoot) {
 		return "", fmt.Errorf("invalid path")
 	}
@@ -251,7 +240,6 @@ func (s *Server) handleUpload(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Server is in read-only mode")
 	}
 
-	// Enforce body limit
 	c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, s.config.MaxSizeBytes)
 
 	relPath := c.Param("*")
@@ -260,17 +248,12 @@ func (s *Server) handleUpload(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid path")
 	}
 
-	// Ensure target directory exists
 	targetDir := fullPath
 	if info, err := os.Stat(fullPath); err == nil && !info.IsDir() {
-		// If fullPath is a file, we probably want to upload to its directory?
-		// Or maybe the relPath should always be a directory.
-		// Let's assume relPath is the directory to upload into.
 	} else if err != nil && !os.IsNotExist(err) {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	// Multipart form
 	form, err := c.MultipartForm()
 	if err != nil {
 		return err
@@ -319,7 +302,7 @@ func (s *Server) handleZipDownload(c *echo.Context) error {
 	}
 
 	zipName := filepath.Base(fullPath) + ".zip"
-	if zipName == "." + ".zip" || zipName == "/" + ".zip" || zipName == ".zip" {
+	if zipName == "."+".zip" || zipName == "/"+".zip" || zipName == ".zip" {
 		zipName = "root.zip"
 	}
 

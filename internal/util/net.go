@@ -5,7 +5,6 @@ import (
 	"net"
 )
 
-// GetLocalIPs returns a slice of all non-loopback local IP addresses.
 func GetLocalIPs() ([]string, error) {
 	var ips []string
 	addrs, err := net.InterfaceAddrs()
@@ -14,7 +13,6 @@ func GetLocalIPs() ([]string, error) {
 	}
 
 	for _, addr := range addrs {
-		// Check the address type and if it is not a loopback
 		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
 				ips = append(ips, ipnet.IP.String())

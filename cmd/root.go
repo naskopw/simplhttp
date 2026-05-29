@@ -51,18 +51,15 @@ func init() {
 }
 
 func runServer() {
-	// Initialize logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	// Parse max size
 	maxSizeBytes, err := util.ParseHumanSize(maxSizeStr)
 	if err != nil {
 		slog.Error("invalid max size", "value", maxSizeStr, "error", err)
 		os.Exit(1)
 	}
 
-	// Validate directory
 	absDir, err := os.Stat(dir)
 	if err != nil {
 		slog.Error("failed to access directory", "path", dir, "error", err)
@@ -73,14 +70,12 @@ func runServer() {
 		os.Exit(1)
 	}
 
-	// Determine protocol
 	protocol := "http"
 	useTLS := https || (certFile != "" && keyFile != "")
 	if useTLS {
 		protocol = "https"
 	}
 
-	// Print local IPs
 	ips, err := util.GetLocalIPs()
 	if err != nil {
 		slog.Warn("could not determine local IP addresses", "error", err)
@@ -92,9 +87,8 @@ func runServer() {
 		fmt.Printf("  %s://localhost:%d\n", protocol, port)
 	}
 
-	// Initialize and start the Echo server
 	slog.Info("server starting", "port", port, "dir", dir, "readonly", readOnly, "maxSize", maxSizeStr, "protocol", protocol)
-	
+
 	srv := server.NewServer(server.Config{
 		Port:         port,
 		Dir:          dir,
@@ -111,4 +105,3 @@ func runServer() {
 		os.Exit(1)
 	}
 }
-

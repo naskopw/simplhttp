@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-// GenerateSelfSignedCert generates a self-signed certificate and private key.
-// It returns the certificate and key in PEM format as byte slices.
 func GenerateSelfSignedCert() (certPEM []byte, keyPEM []byte, err error) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -42,7 +40,6 @@ func GenerateSelfSignedCert() (certPEM []byte, keyPEM []byte, err error) {
 		BasicConstraintsValid: true,
 	}
 
-	// Add local IPs and localhost to SAN
 	template.IPAddresses = append(template.IPAddresses, net.ParseIP("127.0.0.1"), net.ParseIP("::1"))
 	template.DNSNames = append(template.DNSNames, "localhost")
 

@@ -9,7 +9,6 @@ import (
 
 var sizeRegex = regexp.MustCompile(`^(\d+)\s*([a-zA-Z]*)$`)
 
-// ParseHumanSize parses a string like "100MB", "1GB", "512KB" into bytes.
 func ParseHumanSize(s string) (int64, error) {
 	s = strings.TrimSpace(s)
 	if s == "" {
