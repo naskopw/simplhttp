@@ -25,6 +25,7 @@ import (
 type Config struct {
 	Port         int
 	Dir          string
+	BaseRoute    string
 	Auth         string
 	ReadOnly     bool
 	MaxSizeBytes int64
@@ -51,6 +52,13 @@ type ServerConfig struct {
 }
 
 func NewServer(config Config) *Server {
+	if config.BaseRoute == "" {
+		config.BaseRoute = "/"
+	}
+	if !strings.HasPrefix(config.BaseRoute, "/") {
+		config.BaseRoute = "/" + config.BaseRoute
+	}
+
 	e := echo.New()
 	e.Logger = slog.Default()
 
@@ -98,7 +106,7 @@ func (s *Server) setupMiddleware() {
 }
 
 func (s *Server) setupRoutes() {
-	api := s.echo.Group("/api")
+	api := s.echo.Group("/simpl/api")
 	api.GET("/health", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
@@ -109,19 +117,21 @@ func (s *Server) setupRoutes() {
 
 	subFS := echo.MustSubFS(ui.Assets, "dist")
 
-	s.echo.StaticFS("/", subFS)
+	s.echo.StaticFS(s.config.BaseRoute, subFS)
 
 	s.echo.HTTPErrorHandler = func(c *echo.Context, err error) {
 		if err == echo.ErrNotFound {
-			if !strings.HasPrefix(c.Request().URL.Path, "/api") {
-				indexFile, err := subFS.Open("index.html")
-				if err != nil {
-					slog.Error("failed to open index.html", "error", err)
+			if !strings.HasPrefix(c.Request().URL.Path, "/simpl") {
+				if strings.HasPrefix(c.Request().URL.Path, s.config.BaseRoute) {
+					indexFile, err := subFS.Open("index.html")
+					if err != nil {
+						slog.Error("failed to open index.html", "error", err)
+						return
+					}
+					defer indexFile.Close()
+					http.ServeContent(c.Response(), c.Request(), "index.html", time.Now(), indexFile.(io.ReadSeeker))
 					return
 				}
-				defer indexFile.Close()
-				http.ServeContent(c.Response(), c.Request(), "index.html", time.Now(), indexFile.(io.ReadSeeker))
-				return
 			}
 		}
 		echo.DefaultHTTPErrorHandler(true)(c, err)
@@ -211,6 +221,7 @@ func (s *Server) handleFSGet(c *echo.Context) error {
 	}
 
 	if info.IsDir() {
+		showHidden := c.QueryParam("showHidden") == "true"
 		entries, err := os.ReadDir(fullPath)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -218,6 +229,9 @@ func (s *Server) handleFSGet(c *echo.Context) error {
 
 		files := make([]FileInfo, 0, len(entries))
 		for _, entry := range entries {
+			if !showHidden && strings.HasPrefix(entry.Name(), ".") {
+				continue
+			}
 			info, err := entry.Info()
 			if err != nil {
 				continue

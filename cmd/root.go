@@ -13,6 +13,7 @@ import (
 var (
 	port       int
 	dir        string
+	route      string
 	auth       string
 	readOnly   bool
 	maxSizeStr string
@@ -42,6 +43,7 @@ func Execute() {
 func init() {
 	rootCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port to run the server on")
 	rootCmd.Flags().StringVarP(&dir, "dir", "d", ".", "Root directory to serve")
+	rootCmd.Flags().StringVarP(&route, "route", "R", "/", "Base route to serve the UI and files")
 	rootCmd.Flags().StringVarP(&auth, "auth", "a", "", "Basic auth credentials in user:pass format")
 	rootCmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Disable uploads and file modifications")
 	rootCmd.Flags().StringVarP(&maxSizeStr, "max-size", "m", "100MB", "Max upload size per request (e.g. 100MB, 1GB)")
@@ -82,16 +84,17 @@ func runServer() {
 	} else {
 		fmt.Println("Server starting...")
 		for _, ip := range ips {
-			fmt.Printf("  %s://%s:%d\n", protocol, ip, port)
+			fmt.Printf("  %s://%s:%d%s\n", protocol, ip, port, route)
 		}
-		fmt.Printf("  %s://localhost:%d\n", protocol, port)
+		fmt.Printf("  %s://localhost:%d%s\n", protocol, port, route)
 	}
 
-	slog.Info("server starting", "port", port, "dir", dir, "readonly", readOnly, "maxSize", maxSizeStr, "protocol", protocol)
+	slog.Info("server starting", "port", port, "dir", dir, "route", route, "readonly", readOnly, "maxSize", maxSizeStr, "protocol", protocol)
 
 	srv := server.NewServer(server.Config{
 		Port:         port,
 		Dir:          dir,
+		BaseRoute:    route,
 		Auth:         auth,
 		ReadOnly:     readOnly,
 		MaxSizeBytes: maxSizeBytes,

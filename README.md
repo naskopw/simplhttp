@@ -90,10 +90,10 @@ Serve the current directory:
 simplhttp
 ```
 
-The server will start on:
+Specify a port, directory, and a custom base route:
 
-```text
-http://localhost:8080
+```bash
+simplhttp -p 8080 -d /path/to/my/files -R /my-files
 ```
 
 ### Serve a Specific Directory
@@ -142,6 +142,7 @@ simplhttp \
 | ------------ | --------- | ------- | -------------------------------------------------- |
 | `--port`     | `-p`      | `8080`  | Port to run the server on                          |
 | `--dir`      | `-d`      | `.`     | Root directory to serve                            |
+| `--route`    | `-R`      | `/`     | Base route to serve the UI and files               |
 | `--auth`     | `-a`      | `""`    | Basic auth credentials (`user:pass`)               |
 | `--readonly` | `-r`      | `false` | Disable uploads and file modifications             |
 | `--max-size` | `-m`      | `100MB` | Maximum upload size (e.g. `100MB`, `1GB`)          |
@@ -182,6 +183,9 @@ For internet-facing deployments, it is recommended to:
 * Run behind a reverse proxy when appropriate
 
 ---
+
+> **Note:** Internal API routes are served under `/simpl/api/` to avoid conflicts with your files.
+
 
 ## 🏗️ Development
 

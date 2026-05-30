@@ -23,7 +23,7 @@ import {
   Loader,
   Progress,
 } from '@mantine/core'
-import { Folder, File, Download, Upload, ArrowLeft, Sun, Moon } from 'lucide-react'
+import { Folder, File, Download, Upload, ArrowLeft, Sun, Moon, FileArchive, Eye, EyeOff } from 'lucide-react'
 import { Dropzone } from '@mantine/dropzone'
 import { useMediaQuery } from '@mantine/hooks'
 
@@ -55,6 +55,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [showHidden, setShowHidden] = useState(false)
   const [config, setConfig] = useState<ServerConfig>({ maxSizeBytes: 100 * 1024 ** 2, readOnly: false })
   const isMobile = useMediaQuery('(max-width: 768px)')
   const { setColorScheme } = useMantineColorScheme()
@@ -64,7 +65,7 @@ function App() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/fs/${path}`)
+      const response = await fetch("/simpl/api/fs/" + path + "?showHidden=" + showHidden)
       if (!response.ok) throw new Error('Failed to fetch files')
       const data = await response.json()
       setFiles(data)
@@ -77,7 +78,7 @@ function App() {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch('/api/config')
+      const response = await fetch('/simpl/api/config')
       if (response.ok) {
         const data = await response.json()
         setConfig(data)
@@ -93,10 +94,10 @@ function App() {
 
   useEffect(() => {
     fetchFiles(currentPath)
-  }, [currentPath])
+  }, [currentPath, showHidden])
 
   const navigateTo = (name: string) => {
-    const newPath = currentPath ? `${currentPath}/${name}` : name
+    const newPath = currentPath ? currentPath + '/' + name : name
     setCurrentPath(newPath)
   }
 
@@ -107,12 +108,21 @@ function App() {
   }
 
   const getFileUrl = (name: string) => {
-    const path = currentPath ? `${currentPath}/${name}` : name
-    return `/api/fs/${path}`
+    const path = currentPath ? currentPath + '/' + name : name
+    return "/simpl/api/fs/" + path
+  }
+
+  const getZipUrl = (name?: string) => {
+    const path = name ? (currentPath ? currentPath + '/' + name : name) : currentPath
+    return "/simpl/api/zip/" + path
   }
 
   const handleDownload = (name: string) => {
     window.open(getFileUrl(name), '_blank')
+  }
+
+  const handleZipDownload = (name?: string) => {
+    window.open(getZipUrl(name), '_blank')
   }
 
   const onDrop = async (files: File[]) => {
@@ -124,7 +134,7 @@ function App() {
     })
 
     try {
-      await axios.post(`/api/upload/${currentPath}`, formData, {
+      await axios.post("/simpl/api/upload/" + currentPath, formData, {
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -180,7 +190,16 @@ function App() {
         </>
       )}
       <Table.Td>
-        {!file.isDir && (
+        {file.isDir ? (
+          <ActionIcon
+            variant="subtle"
+            color="violet"
+            onClick={() => handleZipDownload(file.name)}
+            title="Download as ZIP"
+          >
+            <FileArchive size={16} />
+          </ActionIcon>
+        ) : (
           <ActionIcon
             variant="subtle"
             color="violet"
@@ -224,7 +243,16 @@ function App() {
             </Group>
           </Box>
         </Group>
-        {!file.isDir && (
+        {file.isDir ? (
+          <ActionIcon
+            variant="light"
+            color="violet"
+            onClick={() => handleZipDownload(file.name)}
+            size="lg"
+          >
+            <FileArchive size={20} />
+          </ActionIcon>
+        ) : (
           <ActionIcon
             variant="light"
             color="violet"
@@ -289,16 +317,36 @@ function App() {
                     )
                   })}
                 </Breadcrumbs>
-                {currentPath && (
+                <Group gap="xs">
+                  <ActionIcon
+                    variant="light"
+                    color="gray"
+                    onClick={() => setShowHidden(!showHidden)}
+                    size={isMobile ? "sm" : "lg"}
+                    title={showHidden ? "Hide hidden files" : "Show hidden files"}
+                  >
+                    {showHidden ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </ActionIcon>
                   <Button
-                    variant="subtle"
-                    leftSection={<ArrowLeft size={16} />}
-                    onClick={navigateBack}
+                    variant="light"
+                    color="violet"
+                    leftSection={<FileArchive size={16} />}
+                    onClick={() => handleZipDownload()}
                     size={isMobile ? 'xs' : 'sm'}
                   >
-                    Back
+                    Download ZIP
                   </Button>
-                )}
+                  {currentPath && (
+                    <Button
+                      variant="subtle"
+                      leftSection={<ArrowLeft size={16} />}
+                      onClick={navigateBack}
+                      size={isMobile ? 'xs' : 'sm'}
+                    >
+                      Back
+                    </Button>
+                  )}
+                </Group>
               </Group>
             </Paper>
 
@@ -317,7 +365,7 @@ function App() {
                   disabled={config.readOnly}
                   styles={{
                     root: {
-                      border: `${rem(1)} dashed var(--mantine-color-default-border)`,
+                      border: rem(1) + ' dashed var(--mantine-color-default-border)',
                       borderRadius: 'var(--mantine-radius-md)',
                       padding: isMobile ? rem(8) : rem(16),
                       backgroundColor: 'var(--mantine-color-default-hover)',
