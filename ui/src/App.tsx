@@ -244,8 +244,8 @@ function App() {
         <Container size="xl" h="100%">
           <Group h="100%" px="md" justify="space-between">
             <Group>
-              <Image src={logo} h={30} w={30} alt="simphttp logo" />
-              <Title order={3} visibleFrom="xs">simphttp</Title>
+              <Image src={logo} h={30} w={30} alt="simplhttp logo" />
+              <Title order={3} visibleFrom="xs">simplhttp</Title>
             </Group>
             <Group>
               {loading && <Loader size="sm" />}

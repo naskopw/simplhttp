@@ -18,8 +18,8 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"github.com/naskopw/simphttp/internal/util"
-	"github.com/naskopw/simphttp/ui"
+	"github.com/naskopw/simplhttp/internal/util"
+	"github.com/naskopw/simplhttp/ui"
 )
 
 type Config struct {

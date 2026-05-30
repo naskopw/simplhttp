@@ -1,6 +1,6 @@
 package main
 
-import "github.com/naskopw/simphttp/cmd"
+import "github.com/naskopw/simplhttp/cmd"
 
 func main() {
 	cmd.Execute()

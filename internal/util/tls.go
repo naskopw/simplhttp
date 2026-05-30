@@ -31,7 +31,7 @@ func GenerateSelfSignedCert() (certPEM []byte, keyPEM []byte, err error) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"simphttp Development"},
+			Organization: []string{"simplhttp Development"},
 		},
 		NotBefore:             notBefore,
 		NotAfter:              notAfter,

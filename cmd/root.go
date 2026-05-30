@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/naskopw/simphttp/internal/server"
-	"github.com/naskopw/simphttp/internal/util"
+	"github.com/naskopw/simplhttp/internal/server"
+	"github.com/naskopw/simplhttp/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -22,9 +22,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "simphttp",
+	Use:   "simplhttp",
 	Short: "A modern, bidirectional HTTP file server",
-	Long: `simphttp is a modern replacement for python -m http.server.
+	Long: `simplhttp is a modern replacement for python -m http.server.
 It features a React UI, support for file uploads, directory navigation, 
 and basic authentication.`,
 	Run: func(cmd *cobra.Command, args []string) {

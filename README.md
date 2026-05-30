@@ -1,10 +1,10 @@
-# simphttp 🚀
+# simplhttp 🚀
 
-**simphttp** is a modern, bidirectional HTTP file server designed as a powerful replacement for `python -m http.server`. It features a beautiful React-based UI, supports file uploads, directory downloads (as ZIP), and comes with built-in security features like Basic Auth and HTTPS.
+**simplhttp** is a modern, bidirectional HTTP file server designed as a powerful replacement for `python -m http.server`. It features a beautiful React-based UI, supports file uploads, directory downloads (as ZIP), and comes with built-in security features like Basic Auth and HTTPS.
 
 All assets are embedded into a single, static binary, making it extremely easy to distribute and run anywhere.
 
-[![Build Status](https://github.com/naskopw/simphttp/actions/workflows/build.yml/badge.svg)](https://github.com/naskopw/simphttp/actions)
+[![Build Status](https://github.com/naskopw/simplhttp/actions/workflows/build.yml/badge.svg)](https://github.com/naskopw/simplhttp/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.25.4-blue.svg)](go.mod)
 
@@ -25,12 +25,12 @@ All assets are embedded into a single, static binary, making it extremely easy t
 
 ### Installation
 
-Download the latest binary for your platform from the [Releases](https://github.com/naskopw/simphttp/releases) page.
+Download the latest binary for your platform from the [Releases](https://github.com/naskopw/simplhttp/releases) page.
 
 Alternatively, install via Go:
 
 ```bash
-go install github.com/naskopw/simphttp@latest
+go install github.com/naskopw/simplhttp@latest
 ```
 
 ### Usage
@@ -38,25 +38,25 @@ go install github.com/naskopw/simphttp@latest
 Run the server in your current directory:
 
 ```bash
-simphttp
+simplhttp
 ```
 
 Specify a port and directory:
 
 ```bash
-simphttp -p 8080 -d /path/to/my/files
+simplhttp -p 8080 -d /path/to/my/files
 ```
 
 Enable Basic Auth and Read-Only mode:
 
 ```bash
-simphttp --auth "admin:password" --readonly
+simplhttp --auth "admin:password" --readonly
 ```
 
 Enable HTTPS:
 
 ```bash
-simphttp --https
+simplhttp --https
 ```
 
 ## 🛠️ Command Line Options
@@ -83,8 +83,8 @@ simphttp --https
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/naskopw/simphttp.git
-   cd simphttp
+   git clone https://github.com/naskopw/simplhttp.git
+   cd simplhttp
    ```
 
 2. Build the UI and the Go binary:
@@ -92,7 +92,7 @@ simphttp --https
    make build-production
    ```
 
-The resulting `simphttp` binary will be in the root directory.
+The resulting `simplhttp` binary will be in the root directory.
 
 ## 📄 License
 

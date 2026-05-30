@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build simphttp
+    name: Build simplhttp
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -48,9 +48,9 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
         run: |
-          BINARY_NAME=simphttp
+          BINARY_NAME=simplhttp
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            BINARY_NAME=simphttp.exe
+            BINARY_NAME=simplhttp.exe
           fi
           go build -ldflags="-s -w" -trimpath -o $BINARY_NAME main.go
           
@@ -61,7 +61,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: simphttp-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: simplhttp-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/
 
   release:
@@ -86,9 +86,9 @@ jobs:
             platform=$(basename "$dir")
             # Copy raw binary to release folder with platform name
             if [[ "$platform" == *"windows"* ]]; then
-              cp "$dir/simphttp.exe" "../release/simphttp-${platform}.exe"
+              cp "$dir/simplhttp.exe" "../release/simplhttp-${platform}.exe"
             else
-              cp "$dir/simphttp" "../release/simphttp-${platform}"
+              cp "$dir/simplhttp" "../release/simplhttp-${platform}"
             fi
           done
 
